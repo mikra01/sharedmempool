@@ -260,12 +260,20 @@ proc isPoolIdle(bitc: SBitContainer) : bool =
   return result
 
 # public api
+
+template isValid*(slotnum : SharedMemPoolSlot) : bool =
+  ## checks if the specified slotnum is valid 
+  ## or contains an errorcode (< 0)
+  slotnum.int >= 0
+
 func calculateMemBufferSize*(buffersize : SharedMemPoolBuffersize, 
                              buffercount : SharedMemPoolSlot) : int =
   ## helper proc to get the total memory size needed 
-  (buffersize.int * buffercount.int) 
-
-  
+  if buffercount.isValid:   
+    (buffersize.int * buffercount.int) 
+  else:
+    (buffersize.int * 1.int) 
+    
 func getMemHelperBaseSize* : int =
   ## helper proc to get the total memory size for the internals
   sizeof(SharedMemPool)  
@@ -278,7 +286,12 @@ proc newSharedMemPool*(buffersize : SharedMemPoolBuffersize,
   result = cast[SharedMemPoolRef](memHelperBasePtr)
   result.spawningThreadId  = getThreadId()
   result.contentionCount = 0   # if allocBuffer is blocked counter is inced by 1 
-  result.maxBuffers = buffercount
+  
+  if buffercount.isValid:
+    result.maxBuffers = buffercount
+  else:
+    result.maxBuffers = 1.int
+
   result.bufferSize = buffersize
   result.bufferUsed = 0
   result.bitbuffer = [0.uint32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -370,11 +383,6 @@ template allocSlot(poolptr : SharedMemPoolPtr,
   result.slotidOrErrno = slotnum
   result.sharedBufferPtr = poolptr.slotnum2BufferPointer(slotnum)
   
-
-template isValid*(slotnum : SharedMemPoolSlot) : bool =
-  ## checks if the specified slotnum is valid 
-  ## or contains an errorcode (< 0)
-  slotnum.int >= 0
   
 proc requestBuffer*( poolptr: SharedMemPoolPtr, 
                      fillval : int = 0, 
