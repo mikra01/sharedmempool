@@ -1341,7 +1341,7 @@ function main() {
   </div>
   <div class="nine columns" id="content">
   <div id="tocRoot"></div>
-  <p class="module-desc"><p>sharedMemPool is an alloc/dealloc module with a initial system alloc/dealloc call. The given chunk of sharedmem is split into parts of equal sizes according to the parameters given. suitable for zero-copy protocol stacks, custom buffering and memory layout</p>
+  <p class="module-desc"><p>sharedMemPool is an alloc/dealloc module with an initial system alloc/dealloc call. The given chunk of sharedmem is split into parts of equal sizes according to the parameters given. suitable for zero-copy protocol stacks, custom buffering and memory layout</p>
 <p>this implementation is without exceptions; it is threadsafe and no worker thread is spawned. It runs with or without GC. No memory allocation calls are performed within the implementation.</p>
 <p>It could also be used to synchronise access of memory mapped I/O. In this case use the proc <strong>requestBufferBySlotNum</strong> to obtain the desired memory address (buffer initialisation should be turned off)</p>
 <p>example (see tests for multithread examples) :</p>
@@ -1401,7 +1401,7 @@ returntype which indicates error or contains the allocated slotnumber
 <dt><pre><a href="sharedmempool.html#SharedBufferHandle"><span class="Identifier">SharedBufferHandle</span></a> <span class="Other">=</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">sharedBufferPtr</span><span class="Other">:</span> <span class="Identifier">pointer</span><span class="Other">,</span>
                          <span class="Identifier">slotidOrErrno</span><span class="Other">:</span> <a href="sharedmempool.html#SharedMemPoolSlot"><span class="Identifier">SharedMemPoolSlot</span></a><span class="Other">]</span></pre></dt>
 <dd>
-type returned by the allocation proc. if the operation was successful a slotid is returned (slotidOrErrno &gt; -1 ) otherwise it´s an errorcode (slotidOrErrno &lt; 0). the isValid template should be used for the condition check
+type returned by the allocation proc. if the operation was successful a slotid is returned (slotidOrErrno &gt; -1 ). Otherwise it´s an errorcode (slotidOrErrno &lt; 0). the isValid template should be used for the condition check
 
 </dd>
 <a id="SharedMemPoolRef"></a>
@@ -1567,14 +1567,14 @@ helper proc to get the total memory size for the internals
 <dt><pre><span class="Keyword">template</span> <span class="Identifier">slotnum2BufferPointer</span><span class="Other">(</span><span class="Identifier">poolptr</span><span class="Other">:</span> <a href="sharedmempool.html#SharedMemPoolPtr"><span class="Identifier">SharedMemPoolPtr</span></a><span class="Other">;</span>
                               <span class="Identifier">slotnum</span><span class="Other">:</span> <a href="sharedmempool.html#SharedMemPoolSlot"><span class="Identifier">SharedMemPoolSlot</span></a><span class="Other">;</span> <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">pointer</span></pre></dt>
 <dd>
-convenience template to obtain a buffer from the specified slotId InvalidPointer (-1) is returned if the offset does not match the buffer´s context (bounds check)
+convenience template to obtain a buffer from the specified slotId. InvalidPointer (-1) is returned if the offset does not match the buffer´s context (bounds check)
 
 </dd>
 <a id="handle2BufferPointer.t,SharedMemPoolPtr,SharedBufferHandle,int"></a>
 <dt><pre><span class="Keyword">template</span> <span class="Identifier">handle2BufferPointer</span><span class="Other">(</span><span class="Identifier">poolptr</span><span class="Other">:</span> <a href="sharedmempool.html#SharedMemPoolPtr"><span class="Identifier">SharedMemPoolPtr</span></a><span class="Other">;</span>
                              <span class="Identifier">handle</span><span class="Other">:</span> <a href="sharedmempool.html#SharedBufferHandle"><span class="Identifier">SharedBufferHandle</span></a><span class="Other">;</span> <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">pointer</span></pre></dt>
 <dd>
-convenience template to obtain a buffer from the specified handle InvalidPointer (-1) is returned if the offset does not match the buffer´s context (bounds check)
+convenience template to obtain a buffer from the specified handle. InvalidPointer (-1) is returned if the offset does not match the buffer´s context (bounds check)
 
 </dd>
 <a id="isValid.t,SharedMemPoolSlot"></a>
@@ -1593,7 +1593,7 @@ checks if the specified slotnum is valid or contains an errorcode (&lt; 0)
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small>Made with Nim. Generated: 2018-11-04 10:55:35 UTC</small>
+        <small>Made with Nim. Generated: 2018-11-04 19:27:32 UTC</small>
       </div>
     </div>
   </div>

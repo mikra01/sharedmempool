@@ -3,7 +3,7 @@
 # please see the LICENSE-file for details.
 
 import locks,os 
-## sharedMemPool is an alloc/dealloc module with a initial system alloc/dealloc call.
+## sharedMemPool is an alloc/dealloc module with an initial system alloc/dealloc call.
 ## The given chunk of sharedmem is split into parts of equal sizes
 ## according to the parameters given.
 ## suitable for zero-copy protocol stacks, custom buffering and memory layout
@@ -148,7 +148,7 @@ type
   SharedBufferHandle* = tuple[sharedBufferPtr : pointer, 
                               slotidOrErrno : SharedMemPoolSlot ]
     ## type returned by the allocation proc. if the operation was successful a slotid 
-    ## is returned (slotidOrErrno > -1 ) otherwise
+    ## is returned (slotidOrErrno > -1 ). Otherwise
     ## it´s an errorcode (slotidOrErrno < 0).
     ## the isValid template should be used for the condition check
 
@@ -345,7 +345,7 @@ proc clearMem(hdl: SharedBufferHandle,bsize : SharedMemPoolBuffersize, clearVal 
 template slotnum2BufferPointer*(poolptr: SharedMemPoolPtr, 
                                 slotnum : SharedMemPoolSlot, 
                                 offset : int = 0) : pointer =
-  ## convenience template to obtain a buffer from the specified slotId
+  ## convenience template to obtain a buffer from the specified slotId. 
   ## InvalidPointer (-1) is returned if the offset 
   ## does not match the buffer´s context (bounds check)
   if offset < poolptr.bufferSize.int and offset >= 0 and slotnum.isValid:
@@ -358,7 +358,7 @@ template slotnum2BufferPointer*(poolptr: SharedMemPoolPtr,
 template handle2BufferPointer*(poolptr:SharedMemPoolPtr, 
                                handle : SharedBufferHandle,
                                offset : int = 0) : pointer =
-  ## convenience template to obtain a buffer from the specified handle
+  ## convenience template to obtain a buffer from the specified handle. 
   ## InvalidPointer (-1) is returned if the offset does not match 
   ## the buffer´s context (bounds check)
   slotnum2BufferPointer(poolptr,handle.slotIdOrErrno,offset)
