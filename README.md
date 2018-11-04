@@ -4,6 +4,8 @@ shared memory pool implementation in Nim
 #### doc
 the module documentation is [here](https://mikra01.github.io/sharedmempool/sharedmempool.html) 
 
+#### dependencies
+STDL only
 
 #### tests
 to compile and run the tests type
