@@ -390,12 +390,11 @@ proc requestBuffer*( poolptr: SharedMemPoolPtr,
       
     if not result.slotidOrErrno.isValid:
       # out of buffer condition
-      atomicInc(poolptr.contentionCount)     
+      inc poolptr.contentionCount     
       return result
       
     allocSlot(poolptr,result.slotidOrErrno,result)
-      
-  atomicInc(poolptr.bufferUsed)
+    inc poolptr.bufferUsed
 
   if wipeBufferMem:
     result.clearMem(poolptr.bufferSize,fillval)
@@ -427,8 +426,7 @@ proc requestBufferBySlotNum*(poolptr: SharedMemPoolPtr,
      return result
 
    allocSlot(poolptr,result.slotidOrErrno,result)
-     
-  atomicInc(poolptr.bufferUsed)
+   inc poolptr.bufferUsed
 
   if wipeBufferMem:
     result.clearMem(poolptr.bufferSize,fillval)
