@@ -2,7 +2,7 @@
 shared memory pool implementation in Nim
 
 #### doc
-the module documentation is [here](https://mikra01.github.io/sharedmempool/sharedmempool.html) 
+the module documentation is [here](https://mikra01.github.io/sharedmempool/docs/sharedmempool.html) 
 
 
 #### tests
