@@ -425,8 +425,8 @@ proc requestBufferBySlotNum*(poolptr: SharedMemPoolPtr,
   result.sharedBufferPtr = InvalidPointer
 
   withLock(poolptr.waitLock):
-
-   if getBitval(poolptr.bitbuffer,slotnum) and 
+   let prevval = getBitval(poolptr.bitbuffer,slotnum)
+   if prevval and 
      poolptr.spawningThreadId != getThreadId():
     # slot already allocated
      result.slotidOrErrno = cast[SharedMemPoolSlot](SharedMemPoolErrno.slotInUse)
@@ -434,7 +434,8 @@ proc requestBufferBySlotNum*(poolptr: SharedMemPoolPtr,
      return result
 
    allocSlot(poolptr,result.slotidOrErrno,result)
-   inc poolptr.bufferUsed
+   if not prevval:
+     inc poolptr.bufferUsed
 
   if wipeBufferMem:
     result.clearMem(poolptr.bufferSize,fillval)
@@ -445,8 +446,9 @@ proc requestBufferBySlotNum*(poolref: SharedMemPoolRef,
                              fillval : int = 0, 
                              wipeBufferMem : bool = false): SharedBufferHandle =
   ## requests a buffer by fixed slotnum. only suitable for memory mapped access  
-  return requestBufferBySlotNum(cast[SharedMemPoolPtr](poolref),
-                                slotnum,fillval,wipeBufferMem)
+  if slotnum.isValid:
+    return requestBufferBySlotNum(cast[SharedMemPoolPtr](poolref),
+                                  slotnum,fillval,wipeBufferMem)
  
 proc releaseBuffer*( poolptr: SharedMemPoolPtr, slotnum: SharedMemPoolSlot )  =
   ## marks the specified buffer as unused. if there are waiting threads a signal is fired 
