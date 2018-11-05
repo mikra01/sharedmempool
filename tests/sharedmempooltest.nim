@@ -7,7 +7,6 @@ suite "api_tests":
     setup:
       const Maxbuffercnt : int = 600
       var
-        memsize : int = SharedMemPoolBufferSize.b64.int * Maxbuffercnt
         memptr = allocShared0(calculateMemBufferSize(SharedMemPoolBufferSize.b64,Maxbuffercnt) )
         sharedbufferpoolref = sharedmempool.newSharedMemPool(
           SharedMemPoolBufferSize.b64,Maxbuffercnt,memptr,
@@ -59,19 +58,19 @@ suite "api_tests":
       # free. the other threads
       # should getting the error: about_to_shutdown. if this msg  the entire buffers
       # should be released
-      proc dosomething_fastalloc(sharedbufferpoolptr : SharedMemPoolPtr) : int  =
-        
+      proc dosomething_fastalloc(sharedbufferpoolptr : SharedMemPoolPtr) : bool  =
+        # we only empty the bufferpool here (consuming everything)          
         var buffers =  newSeq[SharedBufferHandle](Maxbuffercnt)
-      
-        result = 1 
+        result = true
+
         for i in buffers.low..buffers.high:
-          buffers[i] = sharedbufferpoolptr.requestBuffer(255,true)
+          buffers[i] = sharedbufferpoolptr.requestBuffer()
           if not buffers[i].slotidOrErrno.isValid:    
             break # stop allocating
           else:
             sleep(50)
 
-        sleep(500)      
+        sleep(500)  # after consuming we wait here a little bit    
 
         for i in buffers.low..buffers.high:
           if buffers[i].slotidOrErrno.isValid:
@@ -80,12 +79,13 @@ suite "api_tests":
           else:
             break # sentinel reached
 
-      proc dosomething_slowalloc(sharedbufferpoolptr : SharedMemPoolPtr) :int =
+      proc dosomething_slowalloc(sharedbufferpoolptr : SharedMemPoolPtr) : bool =
         var buffers =  newSeq[SharedBufferHandle](Maxbuffercnt)
       
-        result = 1
+        result = true
         for i in buffers.low..buffers.high:
-          buffers[i] = sharedbufferpoolptr.requestBuffer(255,true)         
+          buffers[i] = sharedbufferpoolptr.requestBuffer()         
+          
           if not buffers[i].slotidOrErrno.isValid:    
             # stop allocating
             break
@@ -100,16 +100,16 @@ suite "api_tests":
           if buffers[i].slotidOrErrno.isValid:
             var tststring : cstring = "teststring"
             var tststring2 : cstring = "anotherteststring"
-            var tststring3: string = "teststring"
-
+          
             let hdl : SharedBufferHandle = buffers[i]
             copyMem( hdl.sharedBufferPtr,addr(tststring),tststring.len)
             copyMem(sharedBufferPoolPtr.handle2BufferPointer(hdl,tststring.len),addr(tststring2),tststring2.len)
             var tst : ptr cstring = cast[ptr cstring](hdl.sharedBufferPtr)
-            echo tst[]
+            var strcomp = tst[] == tststring
             var tst2 : ptr cstring = cast[ptr cstring](sharedBufferPoolPtr.handle2BufferPointer(hdl,tststring.len) )
-            echo tst2[]
+            var strcomp2 = tst2[] == tststring2
             
+            result = result and (strcomp and strcomp2)
           
           if buffers[i].slotidOrErrno.isValid:
             sharedbufferpoolptr.releaseBuffer(buffers[i].slotidOrErrno)
@@ -117,21 +117,20 @@ suite "api_tests":
           else:
             break # sentinel reached                
 
-      var presults = newSeq[FlowVar[int]](16)
-      var presults2 = newSeq[FlowVar[int]](16)
-   
+      var presults = newSeq[FlowVar[bool]](16)
+      var presults2 = newSeq[FlowVar[bool]](16)
+  
       for i in presults.low..presults.high:
         presults[i] = spawn dosomething_slowalloc(cast[SharedMemPoolPtr](sharedbufferpoolref))
   
       for i in presults2.low..presults2.high:
         presults2[i] = spawn dosomething_fastalloc(cast[SharedMemPoolPtr](sharedbufferpoolref))
-
-      # possible lock now in deinitBufferPool of the teardown and we have to
-      # wait till all buffers released
-      sleep(100)
-     
+  
+      sync() # wait till all worker finished
+      
+      var boolresult : bool = true
+      for i in presults.low .. presults.high:
+        boolresult = boolresult and ^presults[i] # aggregate the subresults     
       check:
         sharedbufferpoolref.getContentionCount > 0
-    
-      
-
+        boolresult == true        
