@@ -395,7 +395,7 @@ proc requestBuffer*( poolptr: SharedMemPoolPtr,
 
   withLock(poolptr.waitLock):
     result.slotidOrErrno = getEmptySlotIdx(poolptr.bitbuffer,poolptr.maxBuffers)
-      
+  
     if not result.slotidOrErrno.isValid:
       # out of buffer condition
       inc poolptr.contentionCount     
