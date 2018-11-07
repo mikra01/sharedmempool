@@ -128,7 +128,7 @@ const InvalidPointer* : pointer = cast[pointer](-1.int)
 
 type 
   SharedMemPoolErrno* = enum slotNotOccupied = -9, offsetOutOfRange = -8,
-                             reservedErrno = -7, slotInUse = -6, 
+                             reservedErrno = -7, slotInUse = -6, invalidSlot = -5 
                              outOfBuffer = -4, waitLimitExceed = -3,
                              threadNotObjectsOwner= -2, genericError= -1
 
@@ -389,7 +389,7 @@ proc requestBuffer*( poolptr: SharedMemPoolPtr,
                      wipeBufferMem : bool = true ) : SharedBufferHandle =
   ## after returning the field slotidOrErrno indicates if the pointer is valid or not
   ##
-  ## if **slotidOrErrno.isValid == false** sharedBufferPointer contains **InvalidPointer** 
+  ## if **slotidOrErrno.isValid == false** sharedBufferPointer contains **InvalidPointer**   
   result.slotidOrErrno = cast[SharedMemPoolSlot](genericError)
   result.sharedBufferPtr = InvalidPointer
 
@@ -423,6 +423,10 @@ proc requestBufferBySlotNum*(poolptr: SharedMemPoolPtr,
   ## requests a buffer by fixed slotnum. only suitable for memory mapped access  
   result.slotidOrErrno = cast[SharedMemPoolSlot](SharedMemPoolErrno.slotInUse)
   result.sharedBufferPtr = InvalidPointer
+  
+  if not slotnum.isValid:
+    result.slotidOrErrno = cast[SharedMemPoolSlot](SharedMemPoolErrno.invalidSlot)
+    return
 
   withLock(poolptr.waitLock):
    let prevval = getBitval(poolptr.bitbuffer,slotnum)
@@ -446,8 +450,7 @@ proc requestBufferBySlotNum*(poolref: SharedMemPoolRef,
                              fillval : int = 0, 
                              wipeBufferMem : bool = false): SharedBufferHandle =
   ## requests a buffer by fixed slotnum. only suitable for memory mapped access  
-  if slotnum.isValid:
-    return requestBufferBySlotNum(cast[SharedMemPoolPtr](poolref),
+  return requestBufferBySlotNum(cast[SharedMemPoolPtr](poolref),
                                   slotnum,fillval,wipeBufferMem)
  
 proc releaseBuffer*( poolptr: SharedMemPoolPtr, slotnum: SharedMemPoolSlot )  =
