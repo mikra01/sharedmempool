@@ -359,7 +359,7 @@ template slotnum2BufferPointer*(poolptr: SharedMemPoolPtr,
                                 slotnum : SharedMemPoolSlot, 
                                 offset : int = 0) : pointer =
   ## convenience template to obtain a buffer from the specified slotId. 
-  ## InvalidPointer (-1) is returned if the offset 
+  ## InvalidPointer is returned if the offset 
   ## does not match the buffer´s context (bounds check)
   if offset < poolptr.bufferSize.int and offset >= 0 and slotnum.isValid:
     cast[pointer]( poolptr.memBase + 
@@ -372,7 +372,7 @@ template handle2BufferPointer*(poolptr:SharedMemPoolPtr,
                                handle : SharedBufferHandle,
                                offset : int = 0) : pointer =
   ## convenience template to obtain a buffer from the specified handle. 
-  ## InvalidPointer (-1) is returned if the offset does not match 
+  ## InvalidPointer is returned if the offset does not match 
   ## the buffer´s context (bounds check)
   slotnum2BufferPointer(poolptr,handle.slotIdOrErrno,offset)
 
