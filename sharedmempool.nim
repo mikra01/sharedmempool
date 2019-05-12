@@ -59,7 +59,7 @@ import locks,os
 ##
 
 when not compileOption("threads"):
-  {.error: "SharedBufferPool requires --threads:on option.".}
+  {.error: "SharedMemPool requires --threads:on option.".}
 
 # atomics for vcc
 when defined(vcc):
@@ -124,7 +124,7 @@ const constBitmasks : array[0..7,uint8] = [0:0b10000000.uint8,
                                            6:0b00000010.uint8,
                                            7:0b00000001.uint8]
 
-const InvalidPointer* : pointer = cast[pointer](-1.int)
+const InvalidPointer* : pointer = cast[pointer](0.int)
 
 type 
   SharedMemPoolErrno* = enum slotNotOccupied = -9, offsetOutOfRange = -8,
