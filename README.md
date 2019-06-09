@@ -9,7 +9,7 @@ STDL only
 
 ### tests
 to compile and run the tests type
-"nimble sharemempool_tests" within the projects main directory after cloning the repository. The tests
+"nimble test" within the projects main directory after cloning the repository. The tests
 itself are not installed via the nimble installation
 
 
